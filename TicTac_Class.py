@@ -4,8 +4,8 @@ class TicTac:
     self.board = [['.' for _ in range(size)] for _ in range(size)]
 
   def display(self):
-    for i in range(self.size):
-      for j in range(self.size):
+    for i in range(3):
+      for j in range(3):
         print(self.board[i][j],' | ',  end=' ')
       print()
     print()
@@ -28,7 +28,7 @@ class TicTac:
       return True
 
   def is_end(self):
-    for i in range(self.size):
+    for i in range(3):
       # Horizontal
       if self.board[i] == ['X', 'X', 'X']:
         return 'X'
@@ -37,12 +37,14 @@ class TicTac:
       # Vertical
       elif self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i] and self.board[2][i] != '.':
         return self.board[0][i]
-    if self.board[0][0] == self.board[1][1] and  self.board[1][1] == self.board[2][2] and self.board[2][i] != '.':
+    if self.board[0][0] == self.board[1][1] and  self.board[1][1] == self.board[2][2] and self.board[2][2] != '.':
       return self.board[0][0]
+    elif self.board[0][2] == self.board[1][1] and  self.board[1][1] == self.board[2][0] and self.board[1][1] != '.':
+      return self.board[1][1]
 
     dot_count = 0
-    for i in range(self.size):
-      for j in range(self.size):
+    for i in range(3):
+      for j in range(3):
         if self.board[i][j] == '.':
           dot_count += 1
     if dot_count == 0:
@@ -60,21 +62,22 @@ class TicTac:
         return 1, 0, 0
     elif result == 'TIE':
         return 0, 0, 0
-    for i in range(3):
-      for j in range(3):
-        if self.is_valid('O', i, j):
-            self.board[i][j] == 'O'
-            m, px, py = self.min()
-            if m > max_score:
-                max_score = m
-                px = i
-                py = j
-            self.board[i][j] == '.'
+    else:
+      for i in range(3):
+        for j in range(3):
+          if self.is_valid('O', i, j):
+              self.board[i][j] = 'O'
+              m, px, py = self.min()
+              if m > max_score:
+                  max_score = m
+                  px = i
+                  py = j
+              self.board[i][j] = '.'
     return max_score, px, py
 
   def min(self):
-    max_score = 2
-    px = py = 0
+    min_score = 2
+    px = py = None
     result = self.is_end()
     if result == 'X':
         return 1, 0, 0
@@ -82,17 +85,18 @@ class TicTac:
         return -1, 0, 0
     elif result == 'TIE':
         return 0, 0, 0
-    for i in range(3):
-      for j in range(3):
-        if self.is_valid('X', i, j):
-            self.board[i][j] == 'X'
-            m, px, py = self.min()
-            if m < max_score:
-                max_score = m
-                px = i
-                py = j
-            self.board[i][j] == '.'
-    return max_score, px, py
+    else:
+      for i in range(3):
+        for j in range(3):
+          if self.is_valid('X', i, j):
+              self.board[i][j] = 'X'
+              m, px, py = self.max()
+              if m < min_score:
+                  min_score = m
+                  px = i
+                  py = j
+              self.board[i][j] = '.'
+    return min_score, px, py
 
   def play(self):
     playerMark = 'X'
@@ -109,18 +113,21 @@ class TicTac:
       else:
         print(f"This is the {playerMark} Turn !!!")
         print()
-        row = int(input("Enter the Row Number:"))
-        col = int(input("Enter the Column Number:"))
 
-        self.make_move(playerMark, row, col)
-        print()
-        self.display()
         print()
         if playerMark == 'X':
+          row = int(input("Enter the Row Number:"))
+          col = int(input("Enter the Column Number:"))
+
+          self.make_move(playerMark, row, col)
+          print()
           playerMark = 'O'
         elif playerMark == 'O':
+          max_score, row, col = self.max()
+          self.make_move(playerMark, row, col)
+          print()
           playerMark = 'X'
-
+        self.display()
 if __name__ == '__main__':
   game = TicTac()
   game.play()
